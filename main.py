@@ -233,34 +233,19 @@ def partitions(n):
 # https://www.geeksforgeeks.org/gcd-in-python/
 # Euclidean Algorithm. Cool stuff. 
 def gcd(x, y): 
-  
    while(y): 
-       x, y = y, x % y 
-  
+       x, y = y, x % y
    return x 
 
-
-
-# Copy pasted from above, this is how conjugate_class_size works:
-# let n = width or height or whatever
-# let p = integerPartition(n)
-# conjugacyClassSize = n! / total_product( j**a * a! )
-# where j = each number in the partition 
-# where a = how many time that number shows up
-# So we will need to transform this integer partition from (1,1,2)
-# into something like
-# { 1: 2,
-#   2: 1 }
-# Because we don't want to loop through 1 twice. This is sort of like a set but with dict aspect. 
-# So do this:
-# https://stackoverflow.com/questions/23240969/python-count-repeated-elements-in-the-list
-def conjugate_class_size(partition, n):
+# TODO: Real SUS here, might be the source of error?
+def conjugate_class_size(p, n):
   n_factorial = math.factorial(n)
 
-  counts = dict(Counter(partition))
+  counts = dict(Counter(p))
+
   total_product = 1
-  for j, a in counts.iteritems():
-    total_product *= (j**a) * math.factorial(a)
+  for a, j in counts.iteritems():
+    total_product *= ((a**j) * math.factorial(j))
   
   return n_factorial // total_product
 
@@ -268,6 +253,11 @@ def conjugate_class_size(partition, n):
 
 
 def solution(h, w, s):
+
+  h_factorial = math.factorial(h)
+  w_factorial = math.factorial(w)
+  length_of_G = h_factorial*w_factorial
+
   h_partitions=partitions(h)
   w_partitions=partitions(w)
 
@@ -276,34 +266,27 @@ def solution(h, w, s):
   for h_partition in h_partitions:
     for w_partition in w_partitions:
       conjugate_class_size_of_h = conjugate_class_size(h_partition, h)
-      conjugate_class_size_of_w = conjugate_class_size(h_partition, w)
+      conjugate_class_size_of_w = conjugate_class_size(w_partition, w)
+      conjugacy_factor = conjugate_class_size_of_w * conjugate_class_size_of_h
+
 
       exponent_sum = 0
-
       for i in h_partition:
         for j in w_partition:
           exponent_sum += gcd(i, j)
       
       s_power_Z = s**exponent_sum
 
-      the_numerator_in_bl += s_power_Z * conjugate_class_size_of_h * conjugate_class_size_of_w
+      the_numerator_in_bl += s_power_Z * conjugacy_factor
+
+  return str(the_numerator_in_bl//(length_of_G))
 
 
-      pass
-
-  h_factorial = math.factorial(h)
-  w_factorial = math.factorial(w)
-  length_of_G = h_factorial*w_factorial
-
-  return the_numerator_in_bl//(length_of_G)
-
-
-
-
+# print(7,solution(2,2,2))
+print("correct answer", 430, "What we got", solution(2,3,4))
 print(738, solution(3,3,3))
-print(57675, solution(3,3,5))
 print(20834113243925, solution(5,5,5))
-
+# print(97195340925396730736950973830781340249131679073592360856141700148734207997877978005419735822878768821088343977969209139721682171487959967012286474628978470487193051591840, solution(12,12,20))
 
 
 #Orbits = sum( for g in G, (s**Z)*(cl(gh)*cl(gw)) ) / len(G)
