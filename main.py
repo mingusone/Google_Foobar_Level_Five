@@ -159,7 +159,7 @@
 # To break it down:
 # let n = width or height or whatever
 # let p = integerPartition(n)
-# conjugacyClassSize = n! / product( j**a * a! )
+# conjugacyClassSize = n! / total_product( j**a * a! )
 # where j = each number in the partition 
 # where a = how many time that number shows up
 # So we will need to transform this integer partition from (1,1,2)
@@ -174,7 +174,7 @@
 
 # Let's build this: # Orbits = sum( for g in G, (s**Z)*(cl(gh)*cl(gw)) ) / len(G)
 
-# Beginning with the integer partition builder. I know there are recursive ways to do this but I wanted to
+# Beginning with the partition builder. I know there are recursive ways to do this but I wanted to
 # do it this way. Could be optimized though. This will create an empty list and append them like this
 # if n=5:
 # [5] 
@@ -185,6 +185,9 @@
 # [1, 1, 1, 2]
 # [1, 1, 1, 1, 1]
 import copy
+from collections import Counter
+import math
+
 
 def partitions(n):
   if n == 0:
@@ -227,6 +230,56 @@ def partitions(n):
 
   return the_partitions
 
+# https://www.geeksforgeeks.org/gcd-in-python/
+# Euclidean Algorithm. Cool stuff. 
+def gcd(x, y): 
+  
+   while(y): 
+       x, y = y, x % y 
+  
+   return x 
+
+
+
+# Copy pasted from above, this is how conjugate_class_size works:
+# let n = width or height or whatever
+# let p = integerPartition(n)
+# conjugacyClassSize = n! / total_product( j**a * a! )
+# where j = each number in the partition 
+# where a = how many time that number shows up
+# So we will need to transform this integer partition from (1,1,2)
+# into something like
+# { 1: 2,
+#   2: 1 }
+# Because we don't want to loop through 1 twice. This is sort of like a set but with dict aspect. 
+# So do this:
+# https://stackoverflow.com/questions/23240969/python-count-repeated-elements-in-the-list
+def conjugate_class_size(partition, n):
+  n_factorial = math.factorial(n)
+
+  counts = dict(Counter(partition))
+  total_product = 1
+  for j, a in counts.iteritems():
+    total_product *= (j**a) * math.factorial(a)
+  
+  return n_factorial / total_product
+
+
+
+
+def solution(h, w, s):
+  h_partitions=partitions(h)
+  w_partitions=partitions(w)
+
+  for h_partition in h_partitions:
+    for w_partition in w_partitions:
+      conjugate_class_size_of_h = conjugate_class_size(h_partition, h)
+      conjugate_class_size_of_w = conjugate_class_size(h_partition, w)
+
+      pass
+
+
+print(solution(2,2,2))
 
 #Orbits = sum( for g in G, (s**Z)*(cl(gh)*cl(gw)) ) / len(G)
 
