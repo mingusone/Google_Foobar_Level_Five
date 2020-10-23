@@ -262,7 +262,7 @@ def conjugate_class_size(partition, n):
   for j, a in counts.iteritems():
     total_product *= (j**a) * math.factorial(a)
   
-  return n_factorial / total_product
+  return n_factorial // total_product
 
 
 
@@ -271,15 +271,40 @@ def solution(h, w, s):
   h_partitions=partitions(h)
   w_partitions=partitions(w)
 
+  the_numerator_in_bl = 0
+
   for h_partition in h_partitions:
     for w_partition in w_partitions:
       conjugate_class_size_of_h = conjugate_class_size(h_partition, h)
       conjugate_class_size_of_w = conjugate_class_size(h_partition, w)
 
+      exponent_sum = 0
+
+      for i in h_partition:
+        for j in w_partition:
+          exponent_sum += gcd(i, j)
+      
+      s_power_Z = s**exponent_sum
+
+      the_numerator_in_bl += s_power_Z * conjugate_class_size_of_h * conjugate_class_size_of_w
+
+
       pass
 
+  h_factorial = math.factorial(h)
+  w_factorial = math.factorial(w)
+  length_of_G = h_factorial*w_factorial
 
-print(solution(2,2,2))
+  return the_numerator_in_bl//(length_of_G)
+
+
+
+
+print(738, solution(3,3,3))
+print(57675, solution(3,3,5))
+print(20834113243925, solution(5,5,5))
+
+
 
 #Orbits = sum( for g in G, (s**Z)*(cl(gh)*cl(gw)) ) / len(G)
 
